@@ -81,7 +81,11 @@ function getEnergyAtTime(planet, atTimeMillis) {
     return planet.populationCap / denominator;
 }
 
-//careful, altered to remove /1000 as ours is in seconds
+// Careful, my functions are altered to remove /1000 as ours is in seconds...
+// Might be able to cast my planet into your planet style in TS? we need to
+// * rename planetLazy and silverLazy to whatever is used here
+// * multiply my lastUpdated by 1000 I think?
+// * remove 0x in front of my owner because I think your code doesnt have it?
 function updatePlanetToTime(planet, atTimeS) {
     planet.silverLazy = getSilverOverTime(
         planet,
