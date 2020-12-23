@@ -1,4 +1,7 @@
 const fs = require('fs');
+const axios = require('axios');
+
+const url = "https://zkga.me/twitter/all-twitters";
 
 const main = async () => {
 
@@ -22,16 +25,24 @@ const main = async () => {
 
     let leaderboard = [];
 
+
+    const result = await axios.get(url);
+
     for (owner of owners.keys()) {
 
         let sorted = owners.get(owner).sort((a, b) => b.populationCap - a.populationCap);
         let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.populationCap, 0);
         let spent = sorted.reduce((acc, p) => acc + p.silverSpentComputed + p.silverLazy, 0) / 10;
 
-        leaderboard.push([owner, ten + spent]);
+        let twitter = result.data[owner];
+        if (twitter === undefined) {
+            twitter = "";
+        }
+
+        leaderboard.push([owner, ten + spent, twitter]);
     }
 
-    let topten = leaderboard.sort((a, b) => b[1] - a[1]).slice(0, 10);
+    let topten = leaderboard.sort((a, b) => b[1] - a[1]).slice(0, 20);
     console.log(topten)
 }
 
