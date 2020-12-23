@@ -4,11 +4,11 @@ const axios = require('axios');
 // eventual url
 // const url = 'https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v04';
 // Pending version may or may not be ok data
-const url = 'https://api.thegraph.com/subgraphs/id/QmbvQTvpvCJmGtBkRi2DSDYxPcx7C8fcEapAzeuhMoZcPv';
+const url = "https://api.thegraph.com/subgraphs/id/QmRpzRJd9Tr6SthFvjkp4rMrNfxCsPTsQz2EC5kg8YFFNG";
 
 const query = `
 query allplanets($lastID: String!) {
-    planets(first: 1000, where: { id_gt: $lastID  }) {
+    planets(block: {number: 12491275}, first: 1000, where: { id_gt: $lastID  }) {
         id
         owner{
           id
