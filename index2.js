@@ -10,18 +10,29 @@ const main = async () => {
     let rawdata = fs.readFileSync("planets.json");
     let owners = new Map();
 
-    JSON.parse(rawdata).filter(p => p.owner.id !== "0x0000000000000000000000000000000000000000").map(p => updatePlanetToTime(p, now)).forEach(p => {
+    JSON.parse(rawdata).filter(p => p.owner.id !== "0x0000000000000000000000000000000000000000")
+        .map(p => {
 
-        let old = owners.get(p.owner.id);
-        let values = [];
-        if (old !== undefined) {
-            values = old;
-        }
-        values.push(p);
-        owners.set(p.owner.id, values)
-    });
+            p.upgradeState = [
+                p.rangeUpgrades,
+                p.speedUpgrades,
+                p.defenseUpgrades,
+            ];
+            return p;
 
-    // todo calculate its silverspent on js side to check
+        })
+        .map(p => calculateSilverSpent(p))
+        .map(p => updatePlanetToTime(p, now))
+        .forEach(p => {
+
+            let old = owners.get(p.owner.id);
+            let values = [];
+            if (old !== undefined) {
+                values = old;
+            }
+            values.push(p);
+            owners.set(p.owner.id, values)
+        });
 
     let leaderboard = [];
 
@@ -32,7 +43,7 @@ const main = async () => {
 
         let sorted = owners.get(owner).sort((a, b) => b.populationCap - a.populationCap);
         let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.populationCap, 0);
-        let spent = sorted.reduce((acc, p) => acc + p.silverSpentComputed + p.silverLazy, 0) / 10;
+        let spent = sorted.reduce((acc, p) => acc + p.silverSpent + p.silverLazy, 0) / 10;
 
         let twitter = result.data[owner];
         if (twitter === undefined) {
@@ -42,7 +53,7 @@ const main = async () => {
         leaderboard.push([owner, ten + spent, twitter]);
     }
 
-    let topten = leaderboard.sort((a, b) => b[1] - a[1]).slice(0, 20);
+    let topten = leaderboard.sort((a, b) => b[1] - a[1]).slice(0, 10);
     console.log(topten)
 }
 
@@ -50,6 +61,21 @@ const main = async () => {
 main()
 
 
+
+function calculateSilverSpent(planet) {
+    const upgradeCosts = [20, 40, 60, 80, 100];
+    let totalUpgrades = 0;
+    for (let i = 0; i < planet.upgradeState.length; i++) {
+        totalUpgrades += planet.upgradeState[i];
+    }
+    let totalUpgradeCostPercent = 0;
+    for (let i = 0; i < totalUpgrades; i++) {
+        totalUpgradeCostPercent += upgradeCosts[i];
+    }
+    let silverSpent = (totalUpgradeCostPercent / 100) * planet.silverCap;
+    planet.silverSpent = silverSpent;
+    return planet;
+}
 
 //careful ours have 0x on front
 function hasOwner(planet) {
