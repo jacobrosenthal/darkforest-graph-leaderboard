@@ -4,28 +4,23 @@ const axios = require('axios');
 // eventual url
 // const url = 'https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v04';
 // Pending version may or may not be ok data
-const url = "https://api.thegraph.com/subgraphs/id/QmRpzRJd9Tr6SthFvjkp4rMrNfxCsPTsQz2EC5kg8YFFNG";
+const url = "https://api.thegraph.com/subgraphs/id/QmWr9dERgF2WvXxgzRbc9owgB3YJE3Q8VCsGTwyHFv7jyx";
 
 const query = `
 query allplanets($lastID: String!) {
     planets(block: {number: 12491275}, first: 1000, where: { id_gt: $lastID  }) {
-        id
-        owner{
-          id
-        }
+        locationId: id
+        owner{ id }
+        energy: populationLazy
+        energyCap: populationCap
+        energyGrowth: populationGrowth
+        silver: silverLazy
+        silverCap
+        silverGrowth
         lastUpdated
-        silverLazy
-        populationLazy
         rangeUpgrades
         speedUpgrades
         defenseUpgrades
-        populationLazy
-        populationCap
-        populationGrowth
-        silverLazy
-        silverCap
-        silverGrowth 
-        silverSpentComputed
       }
     _meta{
         hasIndexingErrors
@@ -59,7 +54,7 @@ const getAllPlanets = async () => {
                 throw 'graph not synced';
             }
 
-            planets = [...planets, ...result.data.data.planets]
+            planets = [...planets, ...result.data.data.planets];
             if (result.data.data.planets < 1000) { return planets; }
 
         } else {
@@ -74,7 +69,7 @@ const getAllPlanets = async () => {
 
         // todo I dont know what the limit is
         await new Promise(resolve => setTimeout(resolve, 1000));
-        lastID = planets[planets.length - 1].id;
+        lastID = planets[planets.length - 1].locationId;
     }
 
 }

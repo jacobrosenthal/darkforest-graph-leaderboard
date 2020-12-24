@@ -5,33 +5,37 @@ const url = "https://zkga.me/twitter/all-twitters";
 
 const main = async () => {
 
-    let now = Math.trunc(Date.now() / 1000);
-
     let rawdata = fs.readFileSync("planets.json");
     let owners = new Map();
 
-    JSON.parse(rawdata).filter(p => p.owner.id !== "0x0000000000000000000000000000000000000000")
+    JSON.parse(rawdata)
         .map(p => {
+
+            // df doesnt have 0x on owner fields
+            p.owner = p.owner.id.substring(2, p.owner.id);
 
             p.upgradeState = [
                 p.rangeUpgrades,
                 p.speedUpgrades,
                 p.defenseUpgrades,
             ];
+
+            p.silverSpent = calculateSilverSpent(p);
+
             return p;
 
         })
-        .map(p => calculateSilverSpent(p))
-        .map(p => updatePlanetToTime(p, now))
+        .filter(p => p.owner !== "0000000000000000000000000000000000000000")
+        .map(p => updatePlanetToTime(p, Date.now()))
         .forEach(p => {
 
-            let old = owners.get(p.owner.id);
+            let old = owners.get(p.owner);
             let values = [];
             if (old !== undefined) {
                 values = old;
             }
             values.push(p);
-            owners.set(p.owner.id, values)
+            owners.set(p.owner, values)
         });
 
     let leaderboard = [];
@@ -41,11 +45,11 @@ const main = async () => {
 
     for (owner of owners.keys()) {
 
-        let sorted = owners.get(owner).sort((a, b) => b.populationCap - a.populationCap);
-        let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.populationCap, 0);
-        let spent = sorted.reduce((acc, p) => acc + p.silverSpent + p.silverLazy, 0) / 10;
+        let sorted = owners.get(owner).sort((a, b) => b.energyCap - a.energyCap);
+        let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.energyCap, 0);
+        let spent = sorted.reduce((acc, p) => acc + p.silverSpent + p.silver, 0) / 10;
 
-        let twitter = result.data[owner];
+        let twitter = result.data['0x' + owner];
         if (twitter === undefined) {
             twitter = "";
         }
@@ -72,14 +76,11 @@ function calculateSilverSpent(planet) {
     for (let i = 0; i < totalUpgrades; i++) {
         totalUpgradeCostPercent += upgradeCosts[i];
     }
-    let silverSpent = (totalUpgradeCostPercent / 100) * planet.silverCap;
-    planet.silverSpent = silverSpent;
-    return planet;
+    return (totalUpgradeCostPercent / 100) * planet.silverCap;
 }
 
-//careful ours have 0x on front
 function hasOwner(planet) {
-    return planet.owner !== "0x0000000000000000000000000000000000000000";
+    return planet.owner !== "0000000000000000000000000000000000000000";
 };
 
 function getSilverOverTime(
@@ -88,44 +89,43 @@ function getSilverOverTime(
     endTimeMillis
 ) {
     if (!hasOwner(planet)) {
-        return planet.silverLazy;
+        return planet.silver;
     }
 
-    if (planet.silverLazy > planet.silverCap) {
+    if (planet.silver > planet.silverCap) {
         return planet.silverCap;
     }
-    const timeElapsed = endTimeMillis - startTimeMillis;
+    const timeElapsed = endTimeMillis / 1000 - startTimeMillis / 1000;
 
     return Math.min(
-        timeElapsed * planet.silverGrowth + planet.silverLazy,
+        timeElapsed * planet.silverGrowth + planet.silver,
         planet.silverCap
     );
 }
 
-
 function getEnergyAtTime(planet, atTimeMillis) {
-    if (planet.populationLazy === 0) {
+    if (planet.energy === 0) {
         return 0;
     }
     if (!hasOwner(planet)) {
-        return planet.populationLazy;
+        return planet.energy;
     }
-    const timeElapsed = atTimeMillis - planet.lastUpdated;
+    const timeElapsed = atTimeMillis / 1000 - planet.lastUpdated;
     const denominator =
-        Math.exp((-4 * planet.populationGrowth * timeElapsed) / planet.populationCap) *
-        (planet.populationCap / planet.populationLazy - 1) +
+        Math.exp((-4 * planet.energyGrowth * timeElapsed) / planet.energyCap) *
+        (planet.energyCap / planet.energy - 1) +
         1;
-    return planet.populationCap / denominator;
+    return planet.energyCap / denominator;
 }
 
-//careful, altered to remove /1000 as ours is in seconds
-function updatePlanetToTime(planet, atTimeS) {
-    planet.silverLazy = getSilverOverTime(
+// altered to remove endtimeseconds and return planet
+function updatePlanetToTime(planet, atTimeMillis) {
+    planet.silver = getSilverOverTime(
         planet,
-        planet.lastUpdated,
-        atTimeS
+        planet.lastUpdated * 1000,
+        atTimeMillis
     );
-    planet.populationLazy = getEnergyAtTime(planet, atTimeS);
-    planet.lastUpdated = atTimeS;
+    planet.energy = getEnergyAtTime(planet, atTimeMillis);
+    planet.lastUpdated = atTimeMillis / 1000;
     return planet;
 }
