@@ -3,6 +3,7 @@ const axios = require('axios');
 
 const url = "https://zkga.me/twitter/all-twitters";
 
+const contractPrecision = 1000;
 const main = async () => {
 
     let rawdata = fs.readFileSync("planets.json");
@@ -10,6 +11,15 @@ const main = async () => {
 
     JSON.parse(rawdata)
         .map(p => {
+
+            p.energyCap = p.energyCap / contractPrecision;
+            p.energyGrowth = p.energyGrowth / contractPrecision;
+
+            p.silverCap = p.silverCap / contractPrecision;
+            p.silverGrowth = p.silverGrowth / contractPrecision;
+
+            p.energy = p.energy / contractPrecision;
+            p.silver = p.silver / contractPrecision;
 
             // df doesnt have 0x on owner fields
             p.owner = p.owner.id.substring(2, p.owner.id);
