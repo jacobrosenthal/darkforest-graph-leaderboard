@@ -57,7 +57,10 @@ const main = async () => {
 
         let sorted = owners.get(owner).sort((a, b) => b.energyCap - a.energyCap);
         let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.energyCap, 0);
-        let spent = sorted.reduce((acc, p) => acc + p.silverSpent + p.silver, 0) / 10;
+        let spent = sorted.reduce((acc, p) => {
+            return acc + p.silverSpent + p.silver;
+        }, 0) / 10;
+
 
         let twitter = result.data['0x' + owner];
         if (twitter === undefined) {
