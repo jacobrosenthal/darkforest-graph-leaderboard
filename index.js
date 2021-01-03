@@ -9,9 +9,9 @@ query allplanets($lastID: String!) {
     planets(block: {number: 12491275}, first: 1000, where: { id_gt: $lastID  }) {
         locationId: id
         owner{ id }
-        energy: populationLazy
-        energyCap: populationCap
-        energyGrowth: populationGrowth
+        energy: energyLazy
+        energyCap
+        energyGrowth
         silver: silverLazy
         silverCap
         silverGrowth
