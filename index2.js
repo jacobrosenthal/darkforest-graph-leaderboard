@@ -12,6 +12,7 @@ const main = async () => {
     JSON.parse(rawdata)
         .map(p => {
 
+            // all the ported js function act on ms
             p.energyCap = p.energyCap / contractPrecision;
             p.energyGrowth = p.energyGrowth / contractPrecision;
 
