@@ -10,6 +10,7 @@ const main = async () => {
     let owners = new Map();
 
     JSON.parse(rawdata)
+        .filter(p => p.owner.id !== "0x0000000000000000000000000000000000000000")
         .map(p => {
 
             // all the ported js function act on ms
@@ -36,7 +37,6 @@ const main = async () => {
             return p;
 
         })
-        .filter(p => p.owner !== "0000000000000000000000000000000000000000")
         .map(p => updatePlanetToTime(p, Date.now()))
         .forEach(p => {
 
