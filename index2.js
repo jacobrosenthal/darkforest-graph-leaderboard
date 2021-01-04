@@ -1,7 +1,6 @@
 const fs = require('fs');
 const axios = require('axios');
 
-const url = "https://zkga.me/twitter/all-twitters";
 
 const contractPrecision = 1000;
 const main = async () => {
@@ -49,10 +48,7 @@ const main = async () => {
             owners.set(p.owner, values)
         });
 
-    let leaderboard = [];
-
-
-    const result = await axios.get(url);
+    var scoreboard = [];
 
     for (owner of owners.keys()) {
 
@@ -60,19 +56,25 @@ const main = async () => {
         let ten = sorted.slice(0, 10).reduce((acc, p) => acc + p.energyCap, 0);
         let spent = sorted.reduce((acc, p) => {
             return acc + p.silverSpent + p.silver;
-        }, 0) / 10;
+        }, 0) * .3;
 
+        let five = sorted.slice(0, 5).map(p => p.locationId);
 
-        let twitter = result.data['0x' + owner];
-        if (twitter === undefined) {
-            twitter = "";
-        }
+        let item = {
+            player: '0x'+ owner,
+            score: ten + spent,
+            top5Planets: five
+        };
 
-        leaderboard.push([owner, ten + spent, twitter]);
+        scoreboard.push(item);
     }
 
-    let topten = leaderboard.sort((a, b) => b[1] - a[1]).slice(0, 10);
-    console.log(topten)
+    var scoreboard = scoreboard.sort((a, b) => b.score - a.score).slice(0, 10);
+    console.log(scoreboard);
+
+    // let scoreboard = scoreboard.sort((a, b) => b.score - a.score);
+    // well have to get Meta.lastProcessed from the last query for timestamp
+    // console.log(JSON.stringify({ scoreboard, timestamp }));
 }
 
 
