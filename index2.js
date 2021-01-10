@@ -61,7 +61,7 @@ const main = async () => {
         let five = sorted.slice(0, 5).map(p => p.locationId);
 
         let item = {
-            player: '0x'+ owner,
+            player: '0x' + owner,
             score: ten + spent,
             top5Planets: five
         };
@@ -69,12 +69,12 @@ const main = async () => {
         scoreboard.push(item);
     }
 
-    var scoreboard = scoreboard.sort((a, b) => b.score - a.score).slice(0, 10);
-    console.log(scoreboard);
+    var scoreboard = scoreboard.sort((a, b) => b.score - a.score);
+    // console.log(scoreboard);
 
     // let scoreboard = scoreboard.sort((a, b) => b.score - a.score);
     // well have to get Meta.lastProcessed from the last query for timestamp
-    // console.log(JSON.stringify({ scoreboard, timestamp }));
+    console.log(JSON.stringify({ scoreboard }));
 }
 
 

@@ -2,12 +2,11 @@
 const axios = require('axios');
 
 // May or may not be good data
-// const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
-const url = "https://api.thegraph.com/subgraphs/id/QmZNfniC4GLzmgnA4xYifXHz51HV3n3gwkf9yDPnMA3HDM";
+const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
 
 const query = `
 query allplanets($lastID: String!) {
-    planets( first: 1000, where: { id_gt: $lastID  }) {
+    planets( block: {number: 13943700}, first: 1000, where: { id_gt: $lastID  }) {
         locationId: id
         owner{ id }
         energy: energyLazy
