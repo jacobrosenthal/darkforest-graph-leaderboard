@@ -1,3 +1,5 @@
+//! Paged query to download all planets at v05 game end and write to a json
+//! file. Takes a few minutes sadly.
 
 const axios = require('axios');
 

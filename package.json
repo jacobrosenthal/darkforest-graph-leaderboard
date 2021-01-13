@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "scoreboard": "node scoreboard_load.js && node scoreboard_compute.js",
+    "legendary": "node legendary.js"
   },
   "author": "",
   "license": "ISC",

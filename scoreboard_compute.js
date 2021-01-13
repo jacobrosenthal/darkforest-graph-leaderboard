@@ -1,6 +1,9 @@
+//! Load a previously downloaded json file of planets, transform it to the
+//! upstream format to run df functions against it, fast forwarding all planets
+//! to current time, and calculating the v05 scoreboard.
+
 const fs = require('fs');
 const axios = require('axios');
-
 
 const contractPrecision = 1000;
 const main = async () => {
