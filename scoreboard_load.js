@@ -1,25 +1,24 @@
 //! Paged query to download all planets at v05 game end and write to a json
 //! file. Takes a few minutes sadly.
 
+const fs = require('fs');
 const axios = require('axios');
 
 const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
 
 const query = `
 query allplanets($lastID: String!) {
-    planets( block: {number: 13941316}, first: 1000, where: { id_gt: $lastID  }) {
-        locationId: id
+    planets( block: {number: 13941316}, first: 1000, where: { id_gt: $lastID }) {
+        id
         owner{ id }
-        energyLazy: milliEnergyLazy
-        energyCap: milliEnergyCap
-        energyGrowth: milliEnergyGrowth
-        silver: milliSilverLazy
-        silverCap: milliSilverCap
-        silverGrowth: milliSilverGrowth
+        milliEnergyLazy
+        milliEnergyCap
+        milliEnergyGrowth
+        milliSilverLazy
+        milliSilverCap
+        milliSilverGrowth
+        milliSilverSpent
         lastUpdated
-        rangeUpgrades
-        speedUpgrades
-        defenseUpgrades
       }
     _meta{
         hasIndexingErrors
@@ -68,13 +67,12 @@ const getAllPlanets = async () => {
 
         // todo I dont know what the limit is
         await new Promise(resolve => setTimeout(resolve, 100));
-        lastID = planets[planets.length - 1].locationId;
+        lastID = planets[planets.length - 1].id;
     }
 
 }
 
 const main = async () => {
-    var fs = require('fs');
     let planets = await getAllPlanets();
     fs.writeFileSync("planets.json", JSON.stringify(planets))
 }

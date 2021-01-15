@@ -13,28 +13,24 @@ const main = async () => {
 
     JSON.parse(rawdata)
         .filter(p => p.owner.id !== "0x0000000000000000000000000000000000000000")
+        // transform data to match javascript format
         .map(p => {
 
-            // all the ported js function act on ms
-            p.energyCap = p.energyCap / contractPrecision;
-            p.energyGrowth = p.energyGrowth / contractPrecision;
+            p.locationId = p.id;
 
-            p.silverCap = p.silverCap / contractPrecision;
-            p.silverGrowth = p.silverGrowth / contractPrecision;
+            p.energyCap = p.milliEnergyCap / contractPrecision;
+            p.energyGrowth = p.milliEnergyGrowth / contractPrecision;
 
-            p.energy = p.energy / contractPrecision;
-            p.silver = p.silver / contractPrecision;
+            p.silverCap = p.milliSilverCap / contractPrecision;
+            p.silverGrowth = p.milliSilverGrowth / contractPrecision;
+
+            p.energy = p.milliEnergyLazy / contractPrecision;
+            p.silver = p.milliSilverLazy / contractPrecision;
+
+            p.silverSpent = p.milliSilverSpent / contractPrecision;
 
             // df doesnt have 0x on owner fields
             p.owner = p.owner.id.substring(2, p.owner.id);
-
-            p.upgradeState = [
-                p.rangeUpgrades,
-                p.speedUpgrades,
-                p.defenseUpgrades,
-            ];
-
-            p.silverSpent = calculateSilverSpent(p);
 
             return p;
 
@@ -73,30 +69,14 @@ const main = async () => {
     }
 
     var scoreboard = scoreboard.sort((a, b) => b.score - a.score);
-    // console.log(scoreboard);
 
-    // let scoreboard = scoreboard.sort((a, b) => b.score - a.score);
-    // well have to get Meta.lastProcessed from the last query for timestamp
+    // well have to get _meta.block.number from index.js for something like timestamp
     console.log(JSON.stringify({ scoreboard }));
 }
 
 
 main()
 
-
-
-function calculateSilverSpent(planet) {
-    const upgradeCosts = [20, 40, 60, 80, 100];
-    let totalUpgrades = 0;
-    for (let i = 0; i < planet.upgradeState.length; i++) {
-        totalUpgrades += planet.upgradeState[i];
-    }
-    let totalUpgradeCostPercent = 0;
-    for (let i = 0; i < totalUpgrades; i++) {
-        totalUpgradeCostPercent += upgradeCosts[i];
-    }
-    return (totalUpgradeCostPercent / 100) * planet.silverCap;
-}
 
 function hasOwner(planet) {
     return planet.owner !== "0000000000000000000000000000000000000000";
