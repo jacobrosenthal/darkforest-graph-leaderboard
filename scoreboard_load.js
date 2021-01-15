@@ -7,15 +7,15 @@ const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-
 
 const query = `
 query allplanets($lastID: String!) {
-    planets( block: {number: 13943700}, first: 1000, where: { id_gt: $lastID  }) {
+    planets( block: {number: 13941316}, first: 1000, where: { id_gt: $lastID  }) {
         locationId: id
         owner{ id }
-        energy: energyLazy
-        energyCap
-        energyGrowth
-        silver: silverLazy
-        silverCap
-        silverGrowth
+        energyLazy: milliEnergyLazy
+        energyCap: milliEnergyCap
+        energyGrowth: milliEnergyGrowth
+        silver: milliSilverLazy
+        silverCap: milliSilverCap
+        silverGrowth: milliSilverGrowth
         lastUpdated
         rangeUpgrades
         speedUpgrades
