@@ -3,16 +3,25 @@
 
 const axios = require('axios');
 
-// May or may not be good data
-const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
+const GRAPH_URL = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
+const TWITTER_URL = "https://zkga.me/twitter/all-twitters";
+
+const contractPrecision = 1000;
 
 const query = `
 query allarrivals($lastID: String!) {
-    arrivals( first: 1000, where: { id_gt: $lastID  }) {
+    arrivals( first: 1000, where: { id_gt: $lastID }) {
         id
         milliSilverMoved
         arrivalTime
         departureTime
+        fromPlanet{
+            id
+            speed
+        }
+        player{
+            id
+        }
     }
     _meta{
         hasIndexingErrors
@@ -37,7 +46,7 @@ const getAllArrivals = async () => {
             }
         };
 
-        const result = await axios.post(url, JSON.stringify(body));
+        const result = await axios.post(GRAPH_URL, JSON.stringify(body));
 
         // todo if hasIndexingErrors is true might want to not use that data until it shakes out, or notify someone or something
         if (result && result.data && result.data.data && result.data.data.arrivals) {
@@ -47,6 +56,9 @@ const getAllArrivals = async () => {
             }
 
             arrivals = [...arrivals, ...result.data.data.arrivals];
+
+            console.log(result.data.data.arrivals.length);
+
             if (result.data.data.arrivals < 1000) { return arrivals; }
 
         } else {
@@ -67,16 +79,26 @@ const getAllArrivals = async () => {
 }
 
 const main = async () => {
-    var fs = require('fs');
     const arrivals = await getAllArrivals();
+    const twitters = await axios.get(TWITTER_URL);
+
     const scoreboard = arrivals.map(a => {
-        a.time = a.arrivalTime - a.departureTime;
+        // all the ported js function act on ms
+        a.silverMoved = a.milliSilverMoved / contractPrecision;
+
+        // distance = time / speed
+        a.distance = (a.arrivalTime - a.departureTime)
+            / (a.fromPlanet.speed / 100);
+
+        a.twitter = twitters.data[a.player.id]
+
+        return a;
     });
 
-    const whale = scoreboard.sort((a, b) => b.milliSilverMoved - a.milliSilverMoved).slice(0, 1);
-    console.log(whales);
+    const whale = scoreboard.sort((a, b) => b.silverMoved - a.silverMoved).slice(0, 1);
+    console.log(whale);
 
-    const long_distance_runners = scoreboard.sort((a, b) => b.time - a.time).slice(0, 10);
+    const long_distance_runners = scoreboard.sort((a, b) => b.distance - a.distance).slice(0, 10);
     console.log(long_distance_runners);
 }
 
