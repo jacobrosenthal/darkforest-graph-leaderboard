@@ -3,7 +3,6 @@
 
 const axios = require('axios');
 
-// May or may not be good data
 const url = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
 
 const query = `
@@ -68,7 +67,7 @@ const getAllPlanets = async () => {
         }
 
         // todo I dont know what the limit is
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 100));
         lastID = planets[planets.length - 1].locationId;
     }
 

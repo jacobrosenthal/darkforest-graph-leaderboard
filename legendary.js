@@ -2,10 +2,8 @@
 //! the first 1000 legendary artifacts without any paging. Currently theres only
 //! ~100 legendaries currently so still ok
 
-var fs = require('fs');
 const axios = require('axios');
 
-// May or may not be good data
 const GRAPH_URL = "https://api.thegraph.com/subgraphs/name/jacobrosenthal/dark-forest-v05";
 const TWITTER_URL = "https://zkga.me/twitter/all-twitters";
 
