@@ -9,8 +9,9 @@ const TWITTER_URL = "https://zkga.me/twitter/all-twitters";
 
 const query = `
 query allartifacts {
-    artifacts( first: 1000, where: {rarity: LEGENDARY}) {
+    artifacts( first: 1000, where: {rarity: LEGENDARY}, orderBy:mintedAtTimestamp, orderDirection:asc) {
         id
+        mintedAtTimestamp
         discoverer {
           id
         }
@@ -87,6 +88,14 @@ const main = async () => {
         artifact_counts.push(item);
     }
 
+    // sorted by mintedAtTimestamp in contract
+    const first = artifacts
+        .map(a => {
+            a.discoverer.twitter = twitters.data[a.discoverer.id];
+            return a;
+        }).slice(0, 1);
+
+    console.log("first legendary was", first)
     const scoreboard = artifact_counts.sort((a, b) => b.amount - a.amount).slice(0, 10);
 
     console.log(artifacts.length + " Artifacts found");
