@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "scoreboard": "node scoreboard_load.js && node scoreboard_compute.js",
+    "artifacts": "node artifacts_load.js && node artifacts_compute.js",
     "legendary": "node legendary.js"
   },
   "author": "",
